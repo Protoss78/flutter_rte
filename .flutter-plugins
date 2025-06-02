@@ -1,6 +1,9 @@
 # This is a generated file; do not edit or check into version control.
-speech_to_text=C:\\Users\\PL57021\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\speech_to_text-6.1.1\\
-speech_to_text_macos=C:\\Users\\PL57021\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\speech_to_text_macos-1.0.2\\
-webview_flutter=C:\\Users\\PL57021\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\webview_flutter-4.0.1\\
-webview_flutter_android=C:\\Users\\PL57021\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\webview_flutter_android-3.1.1\\
-webview_flutter_wkwebview=C:\\Users\\PL57021\\AppData\\Local\\Pub\\Cache\\hosted\\pub.dev\\webview_flutter_wkwebview-3.0.1\\
+pointer_interceptor=/home/kaufmannr/.pub-cache/hosted/pub.dev/pointer_interceptor-0.10.1+2/
+pointer_interceptor_ios=/home/kaufmannr/.pub-cache/hosted/pub.dev/pointer_interceptor_ios-0.10.1/
+pointer_interceptor_web=/home/kaufmannr/.pub-cache/hosted/pub.dev/pointer_interceptor_web-0.10.2+1/
+speech_to_text=/home/kaufmannr/.pub-cache/hosted/pub.dev/speech_to_text-6.6.2/
+speech_to_text_macos=/home/kaufmannr/.pub-cache/hosted/pub.dev/speech_to_text_macos-1.1.0/
+webview_flutter=/home/kaufmannr/.pub-cache/hosted/pub.dev/webview_flutter-4.11.0/
+webview_flutter_android=/home/kaufmannr/.pub-cache/hosted/pub.dev/webview_flutter_android-4.4.2/
+webview_flutter_wkwebview=/home/kaufmannr/.pub-cache/hosted/pub.dev/webview_flutter_wkwebview-3.20.0/

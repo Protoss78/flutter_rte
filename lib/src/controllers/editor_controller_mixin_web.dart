@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:ui' as ui;
+import 'dart:js_interop';
+import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:flutter_rte/src/controllers/editor_controller.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:web/web.dart' as web;
 
 abstract class PlatformSpecificMixin {
   ///
@@ -16,15 +16,13 @@ abstract class PlatformSpecificMixin {
   final String filePath = 'packages/flutter_rte/lib/assets/document.html';
 
   ///
-  WebViewController get editorController =>
-      throw Exception('webview controller does not exist on web.');
+  WebViewController get editorController => throw Exception('webview controller does not exist on web.');
 
   ///
-  set editorController(WebViewController controller) =>
-      throw Exception('webview controller does not exist on web.');
+  set editorController(WebViewController controller) => throw Exception('webview controller does not exist on web.');
 
   ///
-  StreamSubscription<html.MessageEvent>? _eventSub;
+  StreamSubscription<web.MessageEvent>? _eventSub;
 
   ///
   HtmlEditorController? _c;
@@ -38,8 +36,7 @@ abstract class PlatformSpecificMixin {
     if (_c == null) return;
     if (!(_c?.initialized ?? false) && data['type'] != 'toIframe: initEditor') {
       log('HtmlEditorController error:',
-          error:
-              'HtmlEditorController called an editor widget that\n does not exist.\n'
+          error: 'HtmlEditorController called an editor widget that\n does not exist.\n'
               'This may happen because the widget\n'
               'initialization has been called but not completed,\n'
               'or because the editor widget was destroyed.\n'
@@ -48,37 +45,23 @@ abstract class PlatformSpecificMixin {
     }
     data['view'] = viewId;
     var json = jsonEncoder.convert(data);
-    html.window.postMessage(json, '*');
+    web.window.postMessage(json.toJS, '*'.toJS);
   }
 
   ///
-  Future<void> init(
-      BuildContext initBC, double initHeight, HtmlEditorController c) async {
+  Future<void> init(BuildContext initBC, double initHeight, HtmlEditorController c) async {
     await _eventSub?.cancel();
-    _eventSub = html.window.onMessage.listen((event) {
-      c.processEvent(event.data);
+    _eventSub = web.window.onMessage.listen((event) {
+      final data = event.data?.dartify();
+      if (data is String) {
+        c.processEvent(data);
+      }
     }, onError: (e, s) {
       log('Event stream error: ${e.toString()}');
       log('Stack trace: ${s.toString()}');
     }, onDone: () {
       log('Event stream done.');
     });
-    final iframe = html.IFrameElement()
-      ..style.width = '100%'
-      ..style.height = '100%'
-      // ignore: unsafe_html, necessary to load HTML string
-      ..srcdoc = await c.getInitialContent()
-      ..style.border = 'none'
-      ..style.overflow = 'hidden'
-      ..id = viewId
-      ..onLoad.listen((event) async {
-        var data = <String, Object>{'type': 'toIframe: initEditor'};
-        data['view'] = viewId;
-        var jsonStr = jsonEncoder.convert(data);
-        html.window.postMessage(jsonStr, '*');
-      });
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(viewId, (int viewId) => iframe);
   }
 
   ///
@@ -89,6 +72,36 @@ abstract class PlatformSpecificMixin {
   ///
   Widget view(HtmlEditorController controller) {
     _c = controller;
-    return HtmlElementView(viewType: viewId);
+
+    // Register the view factory first
+    // ignore: undefined_prefixed_name
+    ui_web.platformViewRegistry.registerViewFactory(viewId, (int viewId) {
+      final iframe = web.document.createElement('iframe') as web.HTMLIFrameElement
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.border = 'none'
+        ..style.overflow = 'hidden'
+        ..id = this.viewId;
+
+      controller.getInitialContent().then((content) {
+        iframe.setAttribute('srcdoc', content);
+      });
+
+      iframe.onLoad.listen((event) async {
+        var data = <String, Object>{'type': 'toIframe: initEditor'};
+        data['view'] = this.viewId;
+        var jsonStr = jsonEncoder.convert(data);
+        web.window.postMessage(jsonStr.toJS, '*'.toJS);
+      });
+
+      return iframe;
+    });
+
+    return HtmlElementView(
+      viewType: viewId,
+      onPlatformViewCreated: (int id) async {
+        // No need to register here anymore
+      },
+    );
   }
 }

@@ -227,8 +227,8 @@ class _FullscreenState extends State<Fullscreen> with TickerProviderStateMixin {
                                     .headlineSmall!
                                     .copyWith(fontWeight: FontWeight.bold)),
                             const SizedBox(height: 32),
-                            Row(
-                              children: const [
+                            const Row(
+                              children: [
                                 Expanded(
                                     child: TextField(
                                   decoration: InputDecoration(hintText: 'Name'),
